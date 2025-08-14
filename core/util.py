@@ -1,8 +1,10 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import pandas
 import pandas as pd
 import numpy as np
 import sympy as sp
+from scipy.optimize import curve_fit
 
 
 def matplotlib_setting():
@@ -22,8 +24,14 @@ def matplotlib_setting():
     plt.rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
     plt.rcParams["savefig.dpi"] = 300
     plt.rcParams["savefig.bbox"] = "tight"
+    matplotlib.rcParams.update(
+        {
+            'text.usetex': False,
+            'font.family': 'stixgeneral',
+            'mathtext.fontset': 'stix',
+        }
+    )
     return
-
 
 def read_column(df: pandas.DataFrame, column: int, start_row: int = 0, end_row: int = None, remove_nan: bool = True):
     col = df.iloc[start_row:end_row, column].to_numpy()
@@ -70,6 +78,23 @@ def format_with_error(value, error, sig_figs_value=3, sig_figs_error=2):
     error_str = error_str.lstrip("0")  # Führende Nullen weg
 
     return f"{mantissa_val}({error_str})\\cdot 10^{{{exponent_val}}}"
+
+def fit_poly(params, x_values):
+    poly = np.poly1d(params)  # creates a callable polynomial
+    x_fit = np.linspace(min(x_values), max(x_values), 1000)
+    y_fit = poly(x_fit)
+    return  FitData(x_fit, y_fit)
+
+
+def fit_exp(x_values, y_values):
+    def expo(x, a, b, c, d):
+        return a * np.exp(b * x + d) + c
+
+    paramsP, pcov = curve_fit(expo, resArr, pArr, maxfev=50000)
+
+    x_fit = np.linspace(min(x_values), max(x_values), 1000)
+    y_fit = poly(x_fit)
+
 
 
 def intersect_parabula(a1, b1, c1, a2, b2, c2):
