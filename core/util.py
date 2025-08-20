@@ -1,3 +1,5 @@
+import math
+
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas
@@ -37,14 +39,14 @@ def read_column(df: pandas.DataFrame, column: int, start_row: int = 0, end_row: 
     col = df.iloc[start_row:end_row, column].to_numpy()
     if remove_nan:
         col = col[~pd.isna(col)]
-    return col
+    return np.array(col, dtype=float)
 
 
 def read_row(df: pandas.DataFrame, row: int, start_col: int = 0, end_col: int = None, remove_nan: bool = True):
     row = df.iloc[row, start_col:end_col].to_numpy()
     if remove_nan:
         row = row[~pd.isna(row)]
-    return row
+    return np.array(row, dtype=float)
 
 
 def lin_regression(x, a, b):
@@ -79,22 +81,6 @@ def format_with_error(value, error, sig_figs_value=3, sig_figs_error=2):
 
     return f"{mantissa_val}({error_str})\\cdot 10^{{{exponent_val}}}"
 
-def fit_poly(params, x_values):
-    poly = np.poly1d(params)  # creates a callable polynomial
-    x_fit = np.linspace(min(x_values), max(x_values), 1000)
-    y_fit = poly(x_fit)
-    return  FitData(x_fit, y_fit)
-
-
-def fit_exp(x_values, y_values):
-    def expo(x, a, b, c, d):
-        return a * np.exp(b * x + d) + c
-
-    paramsP, pcov = curve_fit(expo, resArr, pArr, maxfev=50000)
-
-    x_fit = np.linspace(min(x_values), max(x_values), 1000)
-    y_fit = poly(x_fit)
-
 
 
 def intersect_parabula(a1, b1, c1, a2, b2, c2):
@@ -104,3 +90,12 @@ def intersect_parabula(a1, b1, c1, a2, b2, c2):
     equation = sp.Eq(f1, f2)
     x_solutions = sp.solve(equation, x)
     return [(x_val, f1.subs(x, x_val)) for x_val in x_solutions]
+
+def std_tri(uncertainty: float):
+    return uncertainty/(2*math.sqrt(6))
+
+def std_rect(uncertainty: float):
+    return uncertainty/(2*math.sqrt(3))
+
+def std_trap(uncertainty: float, beta):
+    return uncertainty/(2*math.sqrt(6))*math.sqrt(1+beta**2)

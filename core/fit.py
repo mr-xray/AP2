@@ -15,8 +15,6 @@ def fit_poly(x_values, y_values, deg):
     poly = np.poly1d(params)
     x_fit = np.linspace(min(x_values), max(x_values), 1000)
     y_fit = poly(x_fit)
-    print(x_values)
-    print(y_values)
     return FitData(x_fit, y_fit, params, cov)
 
 
