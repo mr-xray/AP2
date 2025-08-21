@@ -1,6 +1,7 @@
 import numpy as np
 import sympy as sp
-from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit, differential_evolution
+
 
 class FitData:
     def __init__(self, x_fit, y_fit, params, cov):
@@ -28,3 +29,20 @@ def fit_exp(x_values, y_values):
     x_fit = np.linspace(min(x_values), max(x_values), 1000)
     y_fit = expo(x_fit, a,b,c,d)
     return FitData(x_fit, y_fit, paramsP, pcov)
+
+def fit_expquad_dif_evol(x_values, y_values, bounds):
+    def expexp(x, a, b, c, d, e):
+        return a * np.exp(b*(x-c)**2 + d) + e
+    def residual(params):
+        a, b, c, d, e = params
+        model = expexp(x_values,a,b,c,d,e)
+        return np.sum((y_values - model) ** 2)
+
+    result = differential_evolution(residual, bounds, seed=2, polish=True)
+    best_params = result.x
+
+    a,b,c,d,e = best_params
+    x_fit = np.linspace(min(x_values), max(x_values), 1000)
+    y_fit = expexp(x_fit, a,b,c,d,e)
+    return FitData(x_fit, y_fit, best_params, 0)
+
